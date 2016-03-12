@@ -16,11 +16,6 @@ namespace Handsey.Unity
             _unityContainer = unityContainer;
         }
 
-        public void Register(Type from, Type to)
-        {
-            _unityContainer.RegisterType(from, to);
-        }
-
         public void Register(Type from, Type to, string name)
         {
             _unityContainer.RegisterType(from, to, name);

@@ -12,38 +12,69 @@ namespace Handsey.Unity.Tests
     [TestFixture]
     public class UnityIocContainerTests
     {
-        private Mock<IUnityContainer> _unityContainer;
+        private UnityContainer _unityContainer;
         private UnityIocContainer _unityIocContainer;
 
         [SetUp]
         public void SetUp()
         {
-            _unityContainer = new Mock<IUnityContainer>();
-            _unityIocContainer = new UnityIocContainer(_unityContainer.Object);
-        }
-
-        [Test]
-        public void Register_TypeAndType_TypeRegsiteredOnUnityContainer()
-        {
-            _unityIocContainer.Register(typeof(int), typeof(string));
-            // Can't mock the extension method so mocking the method the extension method calls (not ideal!)
-            _unityContainer.Verify(u => u.RegisterType(typeof(int), typeof(string), It.IsAny<string>(), It.IsAny<LifetimeManager>()), Times.Once(), "Regsiter was not called on the unity container");
+            _unityContainer = new UnityContainer();
+            _unityIocContainer = new UnityIocContainer(_unityContainer);
         }
 
         [Test]
         public void Register_TypeAndTypeAndString_TypeRegsiteredOnUnityContainerWithName()
         {
-            _unityIocContainer.Register(typeof(int), typeof(string), "dave");
+            _unityIocContainer.Register(typeof(IIocContainer), typeof(MockObject), "dave");
+
             // Can't mock the extension method so mocking the method the extension method calls (not ideal!)
-            _unityContainer.Verify(u => u.RegisterType(typeof(int), typeof(string), It.Is<string>(x => x == "dave"), It.IsAny<LifetimeManager>()), Times.Once(), "Regsiter was not called on the unity container");
+            Assert.That(_unityContainer.Resolve<IIocContainer>("dave"), Is.TypeOf<MockObject>(), "object was not registered");
         }
 
         [Test]
         public void ResolveAll_NoParams_ResolveAllCalledOnUnityContainer()
         {
-            _unityIocContainer.ResolveAll<int>();
+            _unityIocContainer.Register(typeof(IIocContainer), typeof(MockObject), "dave");
+            _unityIocContainer.Register(typeof(IIocContainer), typeof(MockObject2), "dave2");
+
             // Can't mock the extension method so mocking the method the extension method calls (not ideal!)
-            _unityContainer.Verify(u => u.ResolveAll(It.IsAny<Type>()), Times.Once(), "Resolve all was not called on the unity container");
+            Assert.That(_unityIocContainer.ResolveAll<IIocContainer>().Count(), Is.EqualTo(2), "object was not registered");
+        }
+
+        private class MockObject : IIocContainer
+        {
+            public void Register(Type from, Type to)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Register(Type from, Type to, string name)
+            {
+                throw new NotImplementedException();
+            }
+
+            public TResolve[] ResolveAll<TResolve>()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class MockObject2 : IIocContainer
+        {
+            public void Register(Type from, Type to)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Register(Type from, Type to, string name)
+            {
+                throw new NotImplementedException();
+            }
+
+            public TResolve[] ResolveAll<TResolve>()
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
